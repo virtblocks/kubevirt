@@ -1,0 +1,12 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["memballoon.go"],
+    cgo = True,
+    clinkopts = ["-Lvendor/github.com/virtblocks/virtblocks/c/rust/.libs -lvirtblocks_c_rust -pthread -lm -ldl"],
+    copts = ["-Ivendor/github.com/virtblocks/virtblocks/c/rust"],
+    importmap = "kubevirt.io/kubevirt/vendor/github.com/virtblocks/virtblocks/go/rust/pkg/devices",
+    importpath = "github.com/virtblocks/virtblocks/go/rust/pkg/devices",
+    visibility = ["//visibility:public"],
+)

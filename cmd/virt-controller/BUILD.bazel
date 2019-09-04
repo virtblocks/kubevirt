@@ -10,6 +10,7 @@ go_library(
         "//pkg/monitoring/reflector/prometheus:go_default_library",
         "//pkg/monitoring/workqueue/prometheus:go_default_library",
         "//pkg/virt-controller/watch:go_default_library",
+        "//pkg/virtblock:go_default_library",
     ],
 )
 

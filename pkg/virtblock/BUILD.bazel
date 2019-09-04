@@ -1,0 +1,9 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "go_default_library",
+    srcs = ["virtblock.go"],
+    importpath = "kubevirt.io/kubevirt/pkg/virtblock",
+    visibility = ["//visibility:public"],
+    deps = ["//vendor/github.com/virtblocks/virtblocks/go/rust/pkg/devices:go_default_library"],
+)

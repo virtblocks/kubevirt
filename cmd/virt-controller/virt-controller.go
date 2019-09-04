@@ -24,8 +24,10 @@ import (
 	_ "kubevirt.io/kubevirt/pkg/monitoring/reflector/prometheus" // import for prometheus metrics
 	_ "kubevirt.io/kubevirt/pkg/monitoring/workqueue/prometheus" // import for prometheus metrics
 	"kubevirt.io/kubevirt/pkg/virt-controller/watch"
+	"kubevirt.io/kubevirt/pkg/virtblock"
 )
 
 func main() {
+	virtblock.CreateMemBalloon()
 	watch.Execute()
 }
