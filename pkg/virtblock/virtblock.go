@@ -8,6 +8,8 @@ import (
 
 func CreateMemBalloon() error {
 	balloon := devices.NewMemballoon()
+	defer balloon.Free()
+
 	balloon.SetModel(devices.MemballoonModelVirtio)
 	fmt.Println(balloon.String())
 }

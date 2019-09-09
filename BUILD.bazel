@@ -242,3 +242,34 @@ genrule(
     cmd = "echo '#!/bin/sh\n\ncp $(SRCS) $$1' > \"$@\"",
     executable = 1,
 )
+
+genrule(
+    name = "virtblocks_headers",
+    srcs = ["@virtblocks//file"],
+    outs = [
+        "virtblocks.h",
+    ],
+    cmd = "\n".join([
+        "unzip $(location @virtblocks//file)",
+        "cat virtblocks-master/c/rust/virtblocks.h > $@"
+    ]),
+    visibility = ["//visibility:public"],
+)
+
+genrule(
+    name = "virtblocks_include_headers",
+    srcs = ["@virtblocks//file"],
+    outs = [
+        "include/devices/main.h",
+        "include/devices/memballoon.h",
+        "include/playground/main.h",
+        "include/playground/toy.h",
+        "include/alloc.h",
+        "include/error.h",
+    ],
+    cmd = "\n".join([
+        "unzip $(location @virtblocks//file)",
+        "cp -R virtblocks-master/c/rust/include $(@D)",
+    ]),
+    visibility = ["//visibility:public"],
+)
