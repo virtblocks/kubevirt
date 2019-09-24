@@ -1,4 +1,4 @@
-package virtwrap
+package virtblocks
 
 import "kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/api"
 
@@ -31,6 +31,10 @@ func (domain *VirtBlockDomain) Create(*api.Domain) error {
 
 func (domain *VirtBlockDomain) Resume() error {
 	return nil
+}
+
+func (domain *VirtBlockDomain) GetState() (api.LifeCycle, api.StateChangeReason, error) {
+	return "", "", nil
 }
 
 type VirtBlocks struct {

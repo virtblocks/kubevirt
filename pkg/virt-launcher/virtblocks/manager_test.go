@@ -17,7 +17,7 @@
  *
  */
 
-package virtwrap
+package virtblocks
 
 import (
 	"encoding/base64"

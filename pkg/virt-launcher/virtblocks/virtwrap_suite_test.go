@@ -1,4 +1,4 @@
-package virtwrap_test
+package virtblocks_test
 
 import (
 	"testing"
