@@ -19,12 +19,6 @@
 
 package virtblocks
 
-//go:generate mockgen -source $GOFILE -package=$GOPACKAGE -destination=generated_mock_$GOFILE
-
-/*
- ATTENTION: Rerun code generators when interface signatures are modified.
-*/
-
 import (
 	"encoding/json"
 	"encoding/xml"
@@ -64,7 +58,7 @@ const gpuEnvPrefix = "GPU_PASSTHROUGH_DEVICES"
 const vgpuEnvPrefix = "VGPU_PASSTHROUGH_DEVICES"
 
 type VirtBlocksDomainManager struct {
-	virtBlocks       *VirtBlocks
+	virtBlocks       VirtBlocks
 	kubevirtMetadata api.KubeVirtMetadata
 
 	// Anytime a get and a set is done on the domain, this lock must be held.
@@ -80,7 +74,7 @@ type migrationDisks struct {
 	generated map[string]bool
 }
 
-func NewLibvirtDomainManager(virtBlocks *VirtBlocks, virtShareDir string, notifier *eventsclient.Notifier, lessPVCSpaceToleration int) (virtwrap.DomainManager, error) {
+func NewLibvirtDomainManager(virtBlocks VirtBlocks, virtShareDir string, notifier *eventsclient.Notifier, lessPVCSpaceToleration int) (virtwrap.DomainManager, error) {
 	manager := VirtBlocksDomainManager{
 		virtShareDir:           virtShareDir,
 		notifier:               notifier,
@@ -646,7 +640,7 @@ func (l *VirtBlocksDomainManager) ListAllDomains() ([]*api.Domain, error) {
 	return []*api.Domain{domainSpec}, nil
 }
 
-func (l *VirtBlocksDomainManager) specWithMetadata(dom *VirtBlockDomain) (*api.Domain, error) {
+func (l *VirtBlocksDomainManager) specWithMetadata(dom VirtBlockDomain) (*api.Domain, error) {
 	spec, err := dom.Spec()
 	if err != nil {
 		return nil, err

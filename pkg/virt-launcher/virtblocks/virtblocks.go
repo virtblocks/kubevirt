@@ -1,46 +1,63 @@
 package virtblocks
 
+//go:generate mockgen -source $GOFILE -package=$GOPACKAGE -destination=generated_mock_$GOFILE
+
 import "kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/api"
 
-type VirtBlockDomain struct {
+type VirtBlocks interface {
+	GetDomain() (dom VirtBlockDomain, err error)
 }
 
-func (domain *VirtBlockDomain) Destroy() error {
+type VirtBlockDomain interface {
+	Destroy() error
+	Shutdown() error
+	IsAlive() (bool, error)
+	IsPaused() (bool, error)
+	Spec() (*api.Domain, error)
+	Create(*api.Domain) error
+	Resume() error
+	GetState() (api.LifeCycle, api.StateChangeReason, error)
+}
+
+type VirtBlockDomainImpl struct {
+}
+
+func (domain *VirtBlockDomainImpl) Destroy() error {
 	return nil
 }
 
-func (domain *VirtBlockDomain) Shutdown() error {
+func (domain *VirtBlockDomainImpl) Shutdown() error {
 	return nil
 }
 
-func (domain *VirtBlockDomain) IsAlive() (bool, error) {
+func (domain *VirtBlockDomainImpl) IsAlive() (bool, error) {
 	return false, nil
 }
 
-func (domain *VirtBlockDomain) IsPaused() (bool, error) {
+func (domain *VirtBlockDomainImpl) IsPaused() (bool, error) {
 	return false, nil
 }
 
-func (domain *VirtBlockDomain) Spec() (*api.Domain, error) {
+func (domain *VirtBlockDomainImpl) Spec() (*api.Domain, error) {
 	return nil, nil
 }
 
-func (domain *VirtBlockDomain) Create(*api.Domain) error {
+func (domain *VirtBlockDomainImpl) Create(*api.Domain) error {
 	return nil
 }
 
-func (domain *VirtBlockDomain) Resume() error {
+func (domain *VirtBlockDomainImpl) Resume() error {
 	return nil
 }
 
-func (domain *VirtBlockDomain) GetState() (api.LifeCycle, api.StateChangeReason, error) {
+func (domain *VirtBlockDomainImpl) GetState() (api.LifeCycle, api.StateChangeReason, error) {
 	return "", "", nil
 }
 
-type VirtBlocks struct {
+type VirtBlocksImpl struct {
 }
 
-func (virtBlocks *VirtBlocks) GetDomain() (dom *VirtBlockDomain, err error) {
+func (virtBlocks *VirtBlocksImpl) GetDomain() (dom VirtBlockDomain, err error) {
 	return nil, nil
 }
 

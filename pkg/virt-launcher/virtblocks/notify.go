@@ -128,7 +128,7 @@ func newWatchEventError(err error) watch.Event {
 	return watch.Event{Type: watch.Error, Object: &metav1.Status{Status: metav1.StatusFailure, Message: err.Error()}}
 }
 
-func eventCallback(c *VirtBlocks, domain *api.Domain, client *NotifierImpl, events chan watch.Event, interfaceStatus *[]api.InterfaceStatus) {
+func eventCallback(c *VirtBlocksImpl, domain *api.Domain, client *NotifierImpl, events chan watch.Event, interfaceStatus *[]api.InterfaceStatus) {
 	d, err := c.GetDomain()
 	if err != nil {
 		if !isNotFound(err) {
@@ -184,7 +184,7 @@ func eventCallback(c *VirtBlocks, domain *api.Domain, client *NotifierImpl, even
 	}
 }
 
-func (n *NotifierImpl) StartDomainNotifier(domainConn *VirtBlocks, deleteNotificationSent chan watch.Event, vmiUID types.UID, qemuAgentPollerInterval *time.Duration) error {
+func (n *NotifierImpl) StartDomainNotifier(domainConn *VirtBlocksImpl, deleteNotificationSent chan watch.Event, vmiUID types.UID, qemuAgentPollerInterval *time.Duration) error {
 	eventChan := make(chan libvirtEvent, 10)
 
 	// Run the event process logic in a separate go-routine to not block libvirt
