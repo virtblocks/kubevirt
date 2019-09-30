@@ -60,6 +60,7 @@ const vgpuEnvPrefix = "VGPU_PASSTHROUGH_DEVICES"
 type VirtBlocksDomainManager struct {
 	virtBlocks       VirtBlocks
 	kubevirtMetadata api.KubeVirtMetadata
+	vmi              *v1.VirtualMachineInstance
 
 	// Anytime a get and a set is done on the domain, this lock must be held.
 	domainModifyLock sync.Mutex
@@ -74,7 +75,7 @@ type migrationDisks struct {
 	generated map[string]bool
 }
 
-func NewLibvirtDomainManager(virtBlocks VirtBlocks, virtShareDir string, notifier *eventsclient.Notifier, lessPVCSpaceToleration int) (virtwrap.DomainManager, error) {
+func NewVirtBlocksDomainManager(virtBlocks VirtBlocks, virtShareDir string, notifier *eventsclient.Notifier, lessPVCSpaceToleration int) (virtwrap.DomainManager, error) {
 	manager := VirtBlocksDomainManager{
 		virtShareDir:           virtShareDir,
 		notifier:               notifier,
@@ -395,6 +396,7 @@ func parseDeviceAddress(addrString string) []string {
 func (l *VirtBlocksDomainManager) SyncVMI(vmi *v1.VirtualMachineInstance, useEmulation bool, options *cmdv1.VirtualMachineOptions) (*api.DomainSpec, error) {
 	l.domainModifyLock.Lock()
 	defer l.domainModifyLock.Unlock()
+	l.vmi = vmi
 
 	logger := log.Log.Object(vmi)
 
@@ -464,6 +466,7 @@ func (l *VirtBlocksDomainManager) SyncVMI(vmi *v1.VirtualMachineInstance, useEmu
 
 	dom, err := l.virtBlocks.GetDomain()
 	newDomain := false
+	alive := false
 	if err != nil {
 		// We need the domain but it does not exist, so create it
 		if isNotFound(err) {
@@ -478,14 +481,16 @@ func (l *VirtBlocksDomainManager) SyncVMI(vmi *v1.VirtualMachineInstance, useEmu
 				return nil, err
 			}
 			logger.Info("Domain defined.")
+
 		} else {
 			logger.Reason(err).Error("Getting the domain failed.")
 			return nil, err
 		}
-	}
-	alive, err := dom.IsAlive()
-	if err != nil {
-		return nil, err
+	} else {
+		alive, err = dom.IsAlive()
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// To make sure, that we set the right qemu wrapper arguments,

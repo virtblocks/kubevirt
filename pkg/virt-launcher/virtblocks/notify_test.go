@@ -42,7 +42,6 @@ import (
 	"kubevirt.io/kubevirt/pkg/testutils"
 	notifyserver "kubevirt.io/kubevirt/pkg/virt-handler/notify-server"
 	"kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/api"
-	"kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/cli"
 	"kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/util"
 )
 
@@ -55,17 +54,17 @@ var _ = Describe("Notify", func() {
 		var stopped bool
 		var eventChan chan watch.Event
 		var deleteNotificationSent chan watch.Event
-		var client *NotifierImpl
+		var client Notifier
 
-		var mockDomain *cli.MockVirDomain
-		var mockCon *cli.MockConnection
+		var mockDomain *MockVirtBlockDomain
+		var mockCon *MockVirtBlocks
 		var ctrl *gomock.Controller
 
 		BeforeEach(func() {
 			ctrl = gomock.NewController(GinkgoT())
-			mockCon = cli.NewMockConnection(ctrl)
-			mockDomain = cli.NewMockVirDomain(ctrl)
-			mockCon.EXPECT().LookupDomainByName(gomock.Any()).Return(mockDomain, nil).AnyTimes()
+			mockCon = NewMockVirtBlocks(ctrl)
+			mockDomain = NewMockVirtBlockDomain(ctrl)
+			mockCon.EXPECT().GetDomain().Return(mockDomain, nil).AnyTimes()
 
 			stop = make(chan struct{})
 			eventChan = make(chan watch.Event, 100)
@@ -94,18 +93,13 @@ var _ = Describe("Notify", func() {
 		})
 
 		Context("server", func() {
-			table.DescribeTable("should accept Domain notify events", func(state libvirt.DomainState, event libvirt.DomainEventType, kubevirtState api.LifeCycle, kubeEventType watch.EventType) {
+			table.DescribeTable("should accept Domain notify events", func(kubevirtState api.LifeCycle, kubeEventType watch.EventType) {
 				domain := api.NewMinimalDomain("test")
-				x, err := xml.Marshal(domain.Spec)
-				Expect(err).ToNot(HaveOccurred())
 
-				mockDomain.EXPECT().GetState().Return(state, -1, nil)
-				mockDomain.EXPECT().Free()
-				mockDomain.EXPECT().GetName().Return("test", nil).AnyTimes()
-				mockDomain.EXPECT().GetXMLDesc(gomock.Eq(libvirt.DomainXMLFlags(0))).Return(string(x), nil)
-				mockDomain.EXPECT().GetMetadata(libvirt.DOMAIN_METADATA_ELEMENT, "http://kubevirt.io", libvirt.DOMAIN_AFFECT_CONFIG).Return(`<kubevirt></kubevirt>`, nil)
+				mockDomain.EXPECT().GetState().Return(kubevirtState, api.ReasonUser, nil).AnyTimes()
+				mockDomain.EXPECT().Spec().Return(domain, nil)
 
-				eventCallback(mockCon, util.NewDomainFromName("test", "1234"), libvirtEvent{Event: &libvirt.DomainEventLifecycle{Event: event}}, client, deleteNotificationSent, nil)
+				eventCallback(mockCon, domain, client, deleteNotificationSent, nil)
 
 				timedOut := false
 				timeout := time.After(2 * time.Second)
@@ -116,27 +110,25 @@ var _ = Describe("Notify", func() {
 					newDomain, ok := event.Object.(*api.Domain)
 					newDomain.Spec.XMLName = xml.Name{}
 					Expect(ok).To(BeTrue(), "should typecase domain")
-					Expect(reflect.DeepEqual(domain.Spec, newDomain.Spec)).To(BeTrue())
+					Expect(domain.Spec).To(Equal(newDomain.Spec))
 					Expect(event.Type).To(Equal(kubeEventType))
 				}
 				Expect(timedOut).To(BeFalse(), "should not time out")
 			},
-				table.Entry("modified for crashed VMIs", libvirt.DOMAIN_CRASHED, libvirt.DOMAIN_EVENT_CRASHED, api.Crashed, watch.Modified),
-				table.Entry("modified for stopped VMIs", libvirt.DOMAIN_SHUTOFF, libvirt.DOMAIN_EVENT_SHUTDOWN, api.Shutoff, watch.Modified),
-				table.Entry("modified for stopped VMIs", libvirt.DOMAIN_SHUTOFF, libvirt.DOMAIN_EVENT_STOPPED, api.Shutoff, watch.Modified),
-				table.Entry("modified for running VMIs", libvirt.DOMAIN_RUNNING, libvirt.DOMAIN_EVENT_STARTED, api.Running, watch.Modified),
-				table.Entry("added for defined VMIs", libvirt.DOMAIN_SHUTOFF, libvirt.DOMAIN_EVENT_DEFINED, api.Shutoff, watch.Added),
+				table.Entry("modified for crashed VMIs", api.Crashed, watch.Modified),
+				table.Entry("modified for stopped VMIs", api.Shutoff, watch.Modified),
+				table.Entry("modified for stopped VMIs", api.Shutoff, watch.Modified),
+				table.Entry("modified for running VMIs", api.Running, watch.Modified),
+				table.Entry("added for defined VMIs", api.Shutoff, watch.Modified),
 			)
 		})
 
 		It("should receive a delete event when a VirtualMachineInstance is undefined",
 			func() {
-				mockDomain.EXPECT().Free()
-				mockDomain.EXPECT().GetXMLDesc(gomock.Eq(libvirt.DomainXMLFlags(0))).Return("", libvirt.Error{Code: libvirt.ERR_NO_DOMAIN})
-				mockDomain.EXPECT().GetState().Return(libvirt.DOMAIN_NOSTATE, -1, libvirt.Error{Code: libvirt.ERR_NO_DOMAIN})
-				mockDomain.EXPECT().GetName().Return("test", nil).AnyTimes()
+				mockDomain.EXPECT().Spec().Return(nil, libvirt.Error{Code: libvirt.ERR_NO_DOMAIN})
+				mockDomain.EXPECT().GetState().Return(api.NoState, api.ReasonNonExistent, nil)
 
-				eventCallback(mockCon, util.NewDomainFromName("test", "1234"), libvirtEvent{Event: &libvirt.DomainEventLifecycle{Event: libvirt.DOMAIN_EVENT_UNDEFINED}}, client, deleteNotificationSent, nil)
+				eventCallback(mockCon, util.NewDomainFromName("test", "1234"), client, deleteNotificationSent, nil)
 
 				timedOut := false
 				timeout := time.After(2 * time.Second)
@@ -161,13 +153,9 @@ var _ = Describe("Notify", func() {
 		It("should update Interface status",
 			func() {
 				domain := api.NewMinimalDomain("test")
-				x, err := xml.Marshal(domain.Spec)
 				Expect(err).ToNot(HaveOccurred())
-				mockDomain.EXPECT().Free()
-				mockDomain.EXPECT().GetState().Return(libvirt.DOMAIN_RUNNING, -1, nil)
-				mockDomain.EXPECT().GetName().Return("test", nil).AnyTimes()
-				mockDomain.EXPECT().GetXMLDesc(gomock.Eq(libvirt.DomainXMLFlags(0))).Return(string(x), nil)
-				mockDomain.EXPECT().GetMetadata(libvirt.DOMAIN_METADATA_ELEMENT, "http://kubevirt.io", libvirt.DOMAIN_AFFECT_CONFIG).Return(`<kubevirt></kubevirt>`, nil)
+				mockDomain.EXPECT().GetState().Return(api.Running, api.ReasonUser, nil)
+				mockDomain.EXPECT().Spec().Return(domain, nil)
 
 				interfaceStatus := []api.InterfaceStatus{
 					api.InterfaceStatus{
@@ -178,7 +166,7 @@ var _ = Describe("Notify", func() {
 					},
 				}
 
-				eventCallback(mockCon, util.NewDomainFromName("test", "1234"), libvirtEvent{}, client, deleteNotificationSent, &interfaceStatus)
+				eventCallback(mockCon, util.NewDomainFromName("test", "1234"), client, deleteNotificationSent, &interfaceStatus)
 
 				timedOut := false
 				timeout := time.After(2 * time.Second)

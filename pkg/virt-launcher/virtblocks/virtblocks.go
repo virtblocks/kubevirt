@@ -2,7 +2,10 @@ package virtblocks
 
 //go:generate mockgen -source $GOFILE -package=$GOPACKAGE -destination=generated_mock_$GOFILE
 
-import "kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/api"
+import (
+	"kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/api"
+	"kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/errors"
+)
 
 type VirtBlocks interface {
 	GetDomain() (dom VirtBlockDomain, err error)
@@ -12,6 +15,7 @@ type VirtBlockDomain interface {
 	Destroy() error
 	Shutdown() error
 	IsAlive() (bool, error)
+	IsUndefined() (bool, error)
 	IsPaused() (bool, error)
 	Spec() (*api.Domain, error)
 	Create(*api.Domain) error
@@ -28,6 +32,10 @@ func (domain *VirtBlockDomainImpl) Destroy() error {
 
 func (domain *VirtBlockDomainImpl) Shutdown() error {
 	return nil
+}
+
+func (domain *VirtBlockDomainImpl) IsUndefined() (bool, error) {
+	return false, nil
 }
 
 func (domain *VirtBlockDomainImpl) IsAlive() (bool, error) {
@@ -61,6 +69,6 @@ func (virtBlocks *VirtBlocksImpl) GetDomain() (dom VirtBlockDomain, err error) {
 	return nil, nil
 }
 
-func isNotFound(error) bool {
-	return false
+func isNotFound(err error) bool {
+	return errors.IsNotFound(err)
 }
