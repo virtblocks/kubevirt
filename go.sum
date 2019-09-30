@@ -49,8 +49,6 @@ github.com/coreos/go-systemd v0.0.0-20181031085051-9002847aa142/go.mod h1:F5haX7
 github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f/go.mod h1:E3G3o1h8I7cfcXa63jLwjI0eiQQMgzzUDFVpN/nH/eA=
 github.com/coreos/prometheus-operator v0.0.0-20181206002233-dd6f23e7207c h1:AUZCalMUTDZyPXPreDiI5kP7xN/YRmQyprrTJ0oLNKk=
 github.com/coreos/prometheus-operator v0.0.0-20181206002233-dd6f23e7207c/go.mod h1:SO+r5yZUacDFPKHfPoUjI3hMsH+ZUdiuNNhuSq3WoSg=
-github.com/coreos/prometheus-operator v0.31.1 h1:+pS6+Ha01vuoGBh5glhfngk2sB1ELwe6tbXhMkMmp/U=
-github.com/coreos/prometheus-operator v0.31.1/go.mod h1:vHwtP2e+VmEeS6m6lgp87aH+npGVRQsCi5jhcuQA1sA=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -225,9 +223,13 @@ github.com/oklog/ulid v1.3.1/go.mod h1:CirwcVhetQ6Lv90oh/F+FBtV6XMibvdAFo93nm5qn
 github.com/onsi/ginkgo v1.6.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
 github.com/onsi/ginkgo v1.8.0 h1:VkHVNpR4iVnU8XQR6DBm8BqYjN7CRzw+xKUbVVbbW9w=
 github.com/onsi/ginkgo v1.8.0/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
+github.com/onsi/ginkgo v1.10.1 h1:q/mM8GF/n0shIN8SaAZ0V+jnLPzen6WIVZdiwrRlMlo=
+github.com/onsi/ginkgo v1.10.1/go.mod h1:lLunBs/Ym6LB5Z9jYTR76FiuTmxDTDusOGeTQH+WWjE=
 github.com/onsi/gomega v1.4.2-0.20180831124310-ae19f1b56d53/go.mod h1:C1qb7wdrVGGVU+Z6iS04AVkA3Q65CEZX59MT0QO5uiA=
 github.com/onsi/gomega v1.5.1-0.20190515112211-6a48b4839f85 h1:pzUzr0ltIp6baV08rVEBp1ILUJmi0OdYUL5/1KZ/PZ8=
 github.com/onsi/gomega v1.5.1-0.20190515112211-6a48b4839f85/go.mod h1:ex+gbHU/CVuBBDIJjb2X0qEXbFg53c61hWP/1CpauHY=
+github.com/onsi/gomega v1.7.0 h1:XPnZz8VVBHjVsy1vzJmRwIcSwiUO+JFfrv/xGiigmME=
+github.com/onsi/gomega v1.7.0/go.mod h1:ex+gbHU/CVuBBDIJjb2X0qEXbFg53c61hWP/1CpauHY=
 github.com/opencontainers/go-digest v1.0.0-rc1/go.mod h1:cMLVZDEM3+U2I4VmLI6N8jQYUd2OVphdqWwCJHrFt2s=
 github.com/openshift/api v3.9.1-0.20190401220125-3a6077f1f910+incompatible h1:+zV+RS3R2qcEQJ707Ala/t7dl8PjUIGCSTiUxLCBSEo=
 github.com/openshift/api v3.9.1-0.20190401220125-3a6077f1f910+incompatible/go.mod h1:dh9o4Fs58gpFXGSYfnVxGR9PnV53I8TW84pQaJDdGiY=
@@ -296,6 +298,8 @@ github.com/tmc/grpc-websocket-proxy v0.0.0-20171017195756-830351dc03c6/go.mod h1
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
 github.com/ugorji/go v1.1.1/go.mod h1:hnLbHMwcvSihnDhEfx2/BzKp2xb0Y+ErdfYcrs9tkJQ=
 github.com/ugorji/go/codec v0.0.0-20181022190402-e5e69e061d4f/go.mod h1:VFNgLljTbGfSG7qAOspJ7OScBnGdDN/yBr0sguwnwf0=
+github.com/virtblocks/virtblocks/go v0.0.0-20190927152751-ff298c49ed0a h1:IulGo4mtliyUCfE+Bez9JBXr/BtJPQC05YDCgvdS/T8=
+github.com/virtblocks/virtblocks/go v0.0.0-20190927152751-ff298c49ed0a/go.mod h1:6VrNM+NIgUe/5ZNoQbN6b8A5Bq3dCVlD/G72W/fr8Cw=
 github.com/vishvananda/netlink v0.0.0-20180206203732-d35d6b58e1cb h1:VC2SEJPvMyiSl9lHOUm4qF7sq1rI7UG77zHos50/9Ig=
 github.com/vishvananda/netlink v0.0.0-20180206203732-d35d6b58e1cb/go.mod h1:+SR5DhBJrl6ZM7CoCKvpw5BKroDKQ+PJqOg65H/2ktk=
 github.com/vishvananda/netns v0.0.0-20180720170159-13995c7128cc h1:R83G5ikgLMxrBvLh22JhdfI8K6YXEPHx5P03Uu3DRs4=

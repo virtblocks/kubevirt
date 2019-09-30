@@ -42,8 +42,8 @@ require (
 	github.com/mattn/go-colorable v0.1.1 // indirect
 	github.com/mattn/go-runewidth v0.0.0-20181218000649-703b5e6b11ae // indirect
 	github.com/mitchellh/go-ps v0.0.0-20190716172923-621e5597135b
-	github.com/onsi/ginkgo v1.8.0
-	github.com/onsi/gomega v1.5.1-0.20190515112211-6a48b4839f85
+	github.com/onsi/ginkgo v1.10.1
+	github.com/onsi/gomega v1.7.0
 	github.com/openshift/api v3.9.1-0.20190401220125-3a6077f1f910+incompatible
 	github.com/openshift/client-go v0.0.0-20190401163519-84c2b942258a
 	github.com/operator-framework/go-appr v0.0.0-20180917210448-f2aef88446f2 // indirect
@@ -55,6 +55,7 @@ require (
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/pflag v1.0.3
 	github.com/subgraph/libmacouflage v0.0.1
+	github.com/virtblocks/virtblocks/go v0.0.0-20190927152751-ff298c49ed0a
 	github.com/vishvananda/netlink v0.0.0-20180206203732-d35d6b58e1cb
 	github.com/vishvananda/netns v0.0.0-20180720170159-13995c7128cc // indirect
 	golang.org/x/crypto v0.0.0-20190513172903-22d7a77e9e5f

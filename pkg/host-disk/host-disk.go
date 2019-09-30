@@ -111,15 +111,15 @@ func GetMountedHostDiskDir(volumeName string) string {
 
 type DiskImgCreator struct {
 	dirBytesAvailableFunc  func(path string) (uint64, error)
-	notifier               k8sNotifier
+	notifier               K8SNotifier
 	lessPVCSpaceToleration int
 }
 
-type k8sNotifier interface {
+type K8SNotifier interface {
 	SendK8sEvent(vmi *v1.VirtualMachineInstance, severity string, reason string, message string) error
 }
 
-func NewHostDiskCreator(notifier k8sNotifier, lessPVCSpaceToleration int) DiskImgCreator {
+func NewHostDiskCreator(notifier K8SNotifier, lessPVCSpaceToleration int) DiskImgCreator {
 	return DiskImgCreator{
 		dirBytesAvailableFunc:  dirBytesAvailable,
 		notifier:               notifier,
