@@ -10,6 +10,7 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/libvirt/libvirt-go"
 	"github.com/virtblocks/virtblocks/go/pkg/devices"
 	"github.com/virtblocks/virtblocks/go/pkg/vm"
 
@@ -30,12 +31,18 @@ type VirtBlockDomain interface {
 	Create(*api.Domain) error
 	Resume() error
 	GetState() (api.LifeCycle, api.StateChangeReason, error)
+	Name() string
 }
 
 type VirtBlockDomainImpl struct {
 	lock sync.Mutex
 	cmd  *exec.Cmd
 	dom  *api.Domain
+	name string
+}
+
+func (domain *VirtBlockDomainImpl) Name() string {
+	return domain.name
 }
 
 func (domain *VirtBlockDomainImpl) Destroy() error {
@@ -127,10 +134,10 @@ func (domain *VirtBlockDomainImpl) GetState() (api.LifeCycle, api.StateChangeRea
 	if alive, err := domain.isAlive(); alive && err == nil {
 		return api.Running, api.ReasonUser, nil
 	} else if err != nil {
-		return api.NoState, api.ReasonUnknown, err
+		return api.NoState, api.ReasonNonExistent, err
 	}
 	if domain.cmd == nil {
-		return api.NoState, api.ReasonUnknown, nil
+		return api.NoState, api.ReasonNonExistent, nil
 	}
 	return api.Shutdown, api.ReasonUser, nil
 }
@@ -147,12 +154,17 @@ func NewVirtBlocks(name string, uid string, namespace string) *VirtBlocksImpl {
 		Name:      name,
 		UID:       uid,
 		Namespace: namespace,
-		dom:       &VirtBlockDomainImpl{},
+		dom:       &VirtBlockDomainImpl{name: name},
 	}
 }
 
-func (virtBlocks *VirtBlocksImpl) GetDomain() (dom VirtBlockDomain, err error) {
-	return nil, nil
+func (virtBlocks *VirtBlocksImpl) GetDomain() (VirtBlockDomain, error) {
+	if alive, err := virtBlocks.dom.IsAlive(); alive && err == nil {
+		return virtBlocks.dom, nil
+	} else if err != nil {
+		return nil, err
+	}
+	return virtBlocks.dom, libvirt.Error{Code: libvirt.ERR_NO_DOMAIN}
 }
 
 func isNotFound(err error) bool {

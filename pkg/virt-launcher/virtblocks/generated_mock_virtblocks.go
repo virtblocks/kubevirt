@@ -146,3 +146,13 @@ func (_m *MockVirtBlockDomain) GetState() (api.LifeCycle, api.StateChangeReason,
 func (_mr *_MockVirtBlockDomainRecorder) GetState() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetState")
 }
+
+func (_m *MockVirtBlockDomain) Name() string {
+	ret := _m.ctrl.Call(_m, "Name")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+func (_mr *_MockVirtBlockDomainRecorder) Name() *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "Name")
+}

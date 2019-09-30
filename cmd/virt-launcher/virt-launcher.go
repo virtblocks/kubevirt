@@ -228,9 +228,9 @@ func waitForDomainUUID(timeout time.Duration, events chan watch.Event, stop chan
 			// we are done already
 			return nil
 		}
-		if e.Object != nil && e.Type == watch.Added {
+		if e.Object != nil && (e.Type == watch.Added || e.Type == watch.Modified) {
 			domain := e.Object.(*api.Domain)
-			log.Log.Infof("Detected domain with UUID %s", domain.Spec.UUID)
+			log.Log.Infof("Detected domain with name %s", domain.Spec.Name)
 			return domain
 		}
 	case <-stop:

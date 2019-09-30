@@ -177,11 +177,10 @@ func eventCallback(c VirtBlocks, domain *api.Domain, client Notifier, events cha
 	default:
 		if interfaceStatus != nil {
 			domain.Status.Interfaces = *interfaceStatus
-			event := watch.Event{Type: watch.Modified, Object: domain}
-			client.SendDomainEvent(event)
-			events <- event
 		}
-		client.SendDomainEvent(watch.Event{Type: watch.Modified, Object: domain})
+		event := watch.Event{Type: watch.Modified, Object: domain}
+		client.SendDomainEvent(event)
+		events <- event
 	}
 }
 
@@ -228,7 +227,7 @@ func (n *NotifierImpl) StartDomainNotifier(domainConn VirtBlocks, deleteNotifica
 
 			if changed {
 				select {
-				case eventChan <- libvirtEvent{}:
+				case eventChan <- libvirtEvent{Domain: d.Name()}:
 				default:
 					log.Log.Infof("Libvirt event channel is full, dropping event.")
 				}
