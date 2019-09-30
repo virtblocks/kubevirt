@@ -185,7 +185,7 @@ func eventCallback(c VirtBlocks, domain *api.Domain, client Notifier, events cha
 	}
 }
 
-func (n *NotifierImpl) StartDomainNotifier(domainConn *VirtBlocksImpl, deleteNotificationSent chan watch.Event, vmiUID types.UID, qemuAgentPollerInterval *time.Duration) error {
+func (n *NotifierImpl) StartDomainNotifier(domainConn VirtBlocks, deleteNotificationSent chan watch.Event, vmiUID types.UID, qemuAgentPollerInterval *time.Duration) error {
 	eventChan := make(chan libvirtEvent, 10)
 
 	// Run the event process logic in a separate go-routine to not block libvirt

@@ -30,7 +30,6 @@ import (
 	"sync"
 
 	cmdclient "kubevirt.io/kubevirt/pkg/virt-handler/cmd-client"
-	eventsclient "kubevirt.io/kubevirt/pkg/virt-launcher/notify-client"
 	"kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap"
 
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -66,7 +65,7 @@ type VirtBlocksDomainManager struct {
 	domainModifyLock sync.Mutex
 
 	virtShareDir           string
-	notifier               *eventsclient.Notifier
+	notifier               hostdisk.K8SNotifier
 	lessPVCSpaceToleration int
 }
 
@@ -75,7 +74,7 @@ type migrationDisks struct {
 	generated map[string]bool
 }
 
-func NewVirtBlocksDomainManager(virtBlocks VirtBlocks, virtShareDir string, notifier *eventsclient.Notifier, lessPVCSpaceToleration int) (virtwrap.DomainManager, error) {
+func NewVirtBlocksDomainManager(virtBlocks VirtBlocks, virtShareDir string, notifier hostdisk.K8SNotifier, lessPVCSpaceToleration int) (virtwrap.DomainManager, error) {
 	manager := VirtBlocksDomainManager{
 		virtShareDir:           virtShareDir,
 		notifier:               notifier,
@@ -618,7 +617,7 @@ func (l *VirtBlocksDomainManager) KillVMI(vmi *v1.VirtualMachineInstance) error 
 		}
 		log.Log.Object(vmi).Info("Domain stopped.")
 		return nil
-	} else {
+	} else if err != nil {
 		return err
 	}
 

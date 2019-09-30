@@ -32,6 +32,8 @@ import (
 	"github.com/libvirt/libvirt-go"
 	"github.com/spf13/pflag"
 
+	"kubevirt.io/kubevirt/pkg/virt-launcher/virtblocks"
+
 	"k8s.io/apimachinery/pkg/types"
 	utilwait "k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/apimachinery/pkg/watch"
@@ -46,12 +48,10 @@ import (
 	"kubevirt.io/kubevirt/pkg/ignition"
 	cmdclient "kubevirt.io/kubevirt/pkg/virt-handler/cmd-client"
 	virtlauncher "kubevirt.io/kubevirt/pkg/virt-launcher"
-	notifyclient "kubevirt.io/kubevirt/pkg/virt-launcher/notify-client"
 	"kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap"
 	"kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/api"
 	virtcli "kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/cli"
 	cmdserver "kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/cmd-server"
-	"kubevirt.io/kubevirt/pkg/virt-launcher/virtwrap/util"
 	"kubevirt.io/kubevirt/pkg/watchdog"
 )
 
@@ -117,7 +117,7 @@ func createLibvirtConnection() virtcli.Connection {
 	return domainConn
 }
 
-func startDomainEventMonitoring(notifier *notifyclient.Notifier, virtShareDir string, domainConn virtcli.Connection, deleteNotificationSent chan watch.Event, vmiUID types.UID, qemuAgentPollerInterval *time.Duration) {
+func startDomainEventMonitoring(notifier *virtblocks.NotifierImpl, virtShareDir string, vb virtblocks.VirtBlocks, deleteNotificationSent chan watch.Event, vmiUID types.UID, qemuAgentPollerInterval *time.Duration) {
 	go func() {
 		for {
 			if res := libvirt.EventRunDefaultImpl(); res != nil {
@@ -127,7 +127,7 @@ func startDomainEventMonitoring(notifier *notifyclient.Notifier, virtShareDir st
 		}
 	}()
 
-	err := notifier.StartDomainNotifier(domainConn, deleteNotificationSent, vmiUID, qemuAgentPollerInterval)
+	err := notifier.StartDomainNotifier(vb, deleteNotificationSent, vmiUID, qemuAgentPollerInterval)
 	if err != nil {
 		panic(err)
 	}
@@ -353,26 +353,14 @@ func main() {
 		*name)
 	watchdogDone := startWatchdogTicker(watchdogFile, *watchdogInterval, stopChan, *uid)
 
-	err = util.SetupLibvirt()
-	if err != nil {
-		panic(err)
-	}
-	util.StartLibvirt(stopChan)
-	if err != nil {
-		panic(err)
-	}
-	util.StartVirtlog(stopChan)
-
-	domainConn := createLibvirtConnection()
-	defer domainConn.Close()
-
-	notifier, err := notifyclient.NewNotifier(*virtShareDir)
+	notifier, err := virtblocks.NewNotifier(*virtShareDir)
 	if err != nil {
 		panic(err)
 	}
 	defer notifier.Close()
 
-	domainManager, err := virtwrap.NewLibvirtDomainManager(domainConn, *virtShareDir, notifier, *lessPVCSpaceToleration)
+	vb := &virtblocks.VirtBlocksImpl{Name: *name, Namespace: *namespace, UID: *uid}
+	domainManager, err := virtblocks.NewVirtBlocksDomainManager(vb, *virtShareDir, notifier, *lessPVCSpaceToleration)
 	if err != nil {
 		panic(err)
 	}
@@ -403,7 +391,7 @@ func main() {
 
 	events := make(chan watch.Event, 10)
 	// Send domain notifications to virt-handler
-	startDomainEventMonitoring(notifier, *virtShareDir, domainConn, events, vm.UID, qemuAgentPollerInterval)
+	startDomainEventMonitoring(notifier, *virtShareDir, vb, events, vm.UID, qemuAgentPollerInterval)
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt,

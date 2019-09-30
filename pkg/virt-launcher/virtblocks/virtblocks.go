@@ -63,6 +63,9 @@ func (domain *VirtBlockDomainImpl) GetState() (api.LifeCycle, api.StateChangeRea
 }
 
 type VirtBlocksImpl struct {
+	Name      string
+	UID       string
+	Namespace string
 }
 
 func (virtBlocks *VirtBlocksImpl) GetDomain() (dom VirtBlockDomain, err error) {
