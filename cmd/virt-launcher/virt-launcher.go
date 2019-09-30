@@ -359,7 +359,7 @@ func main() {
 	}
 	defer notifier.Close()
 
-	vb := &virtblocks.VirtBlocksImpl{Name: *name, Namespace: *namespace, UID: *uid}
+	vb := virtblocks.NewVirtBlocks(*name, *uid, *namespace)
 	domainManager, err := virtblocks.NewVirtBlocksDomainManager(vb, *virtShareDir, notifier, *lessPVCSpaceToleration)
 	if err != nil {
 		panic(err)

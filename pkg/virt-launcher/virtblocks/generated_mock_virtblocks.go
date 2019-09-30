@@ -93,17 +93,6 @@ func (_mr *_MockVirtBlockDomainRecorder) IsAlive() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "IsAlive")
 }
 
-func (_m *MockVirtBlockDomain) IsUndefined() (bool, error) {
-	ret := _m.ctrl.Call(_m, "IsUndefined")
-	ret0, _ := ret[0].(bool)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-func (_mr *_MockVirtBlockDomainRecorder) IsUndefined() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "IsUndefined")
-}
-
 func (_m *MockVirtBlockDomain) IsPaused() (bool, error) {
 	ret := _m.ctrl.Call(_m, "IsPaused")
 	ret0, _ := ret[0].(bool)
