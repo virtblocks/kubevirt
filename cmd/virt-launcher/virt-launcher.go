@@ -415,7 +415,7 @@ func main() {
 
 	domain := waitForDomainUUID(*qemuTimeout, events, signalStopChan, domainManager)
 	if domain != nil {
-		mon := virtlauncher.NewProcessMonitor(domain.Spec.UUID,
+		mon := virtlauncher.NewProcessMonitor("272b47a8-b72b-4cd7-9109-79005816cc31",
 			gracefulShutdownTriggerFile,
 			*gracePeriodSeconds,
 			shutdownCallback)

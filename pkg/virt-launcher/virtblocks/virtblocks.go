@@ -110,6 +110,7 @@ func (domain *VirtBlockDomainImpl) Create(dom *api.Domain) error {
 	} else if err != nil {
 		return fmt.Errorf("could not determine if process is already running: %v", err)
 	}
+	cmdStr = append(cmdStr, "-uuid", "272b47a8-b72b-4cd7-9109-79005816cc31")
 	cmd := exec.Command(cmdStr[0], cmdStr[1:]...)
 	cmd.Stderr = os.Stderr
 	cmd.Stdout = os.Stdout
@@ -117,6 +118,9 @@ func (domain *VirtBlockDomainImpl) Create(dom *api.Domain) error {
 	if err != nil {
 		return fmt.Errorf("failed to start qemu process: %v", err)
 	}
+	go func() {
+		cmd.Wait()
+	}()
 	domain.cmd = cmd
 	domain.dom = dom
 	return nil
